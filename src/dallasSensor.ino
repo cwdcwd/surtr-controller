@@ -42,9 +42,9 @@ void loop() {
   if (millis() - msLastMetric >= msMETRIC_PUBLISH){
     Serial.println("Publishing now.");
 
-    if(fahrenheit>tempMax) {
+    if(fahrenheit>=tempMax) {
       relayOff(" ");
-    } else if(fahrenheit<tempMin) {
+    } else if(fahrenheit<=tempMin) {
       relayOn(" ");
     }
 
@@ -54,7 +54,9 @@ void loop() {
 
 void publishData(){
   sprintf(szInfo, "%2.2f", fahrenheit);
-  Particle.publish("dsTmp", szInfo, PRIVATE);
+  Particle.publish("currentTemp", szInfo, PRIVATE);
+  String relayStateText = (relayState==0)?"OFF":"ON";
+  Particle.publish("relayState",  relayStateText, PRIVATE);
   msLastMetric = millis();
 }
 
