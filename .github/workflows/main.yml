@@ -38,6 +38,6 @@ jobs:
       - name: building code
         run: |
           particle -q login -u $PARTICLE_USR -p  $PARTICLE_PWD
-          particle compile photon --target 0.7.0
+          particle compile $PARTICLE_DEVICE_TYPE --target PARTICLE_OS_VERSION
       - name: deploy
         run: particle flash $PARTICLE_DEVICE_NAME *.bin
