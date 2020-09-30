@@ -29,16 +29,23 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: install tooling
         run: |
-          echo "installing tooling"
+          echo "installing particle.io CLI tooling"
           npm install -g particle-cli
           
       # Runs a set of commands using the runners shell
       - name: building code
+        env:
+          PARTICLE_DEVICE_TYPE: ${{ secrets.PARTICLE_DEVICE_TYPE }}
+          PARTICLE_OS_VERSION: ${{ secrets.PARTICLE_OS_VERSION }}
+          PARTICLE_USR: ${{ secrets.PARTICLE_USR }}
+          PARTICLE_PWD: ${{ secrets.PARTICLE_PWD }}
         run: |
-          echo "building $PARTICLE_DEVICE_TYPE with target $PARTICLE_OS_VERSION"
+          echo building $PARTICLE_DEVICE_TYPE with target $PARTICLE_OS_VERSION
           particle -q login -u $PARTICLE_USR -p  $PARTICLE_PWD
           particle compile $PARTICLE_DEVICE_TYPE --target $PARTICLE_OS_VERSION
       - name: deploy
+        env:
+          PARTICLE_DEVICE_NAME: ${{ secrets.PARTICLE_DEVICE_NAME }}
         run: | 
-         echo "deploying to $PARTICLE_DEVICE_NAME"
+         echo deploying to $PARTICLE_DEVICE_NAME
          particle flash $PARTICLE_DEVICE_NAME *.bin
