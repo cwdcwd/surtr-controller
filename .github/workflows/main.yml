@@ -1,0 +1,51 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-16.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+          check-latest: true
+
+      # Runs a set of commands using the runners shell
+      - name: install tooling
+        run: |
+          echo "installing particle.io CLI tooling"
+          npm install -g particle-cli
+          
+      # Runs a set of commands using the runners shell
+      - name: building code
+        env:
+          PARTICLE_DEVICE_TYPE: ${{ secrets.PARTICLE_DEVICE_TYPE }}
+          PARTICLE_OS_VERSION: ${{ secrets.PARTICLE_OS_VERSION }}
+          PARTICLE_USR: ${{ secrets.PARTICLE_USR }}
+          PARTICLE_PWD: ${{ secrets.PARTICLE_PWD }}
+        run: |
+          echo building $PARTICLE_DEVICE_TYPE with target $PARTICLE_OS_VERSION
+          particle -q login -u $PARTICLE_USR -p  $PARTICLE_PWD
+          particle compile $PARTICLE_DEVICE_TYPE --target $PARTICLE_OS_VERSION
+      - name: deploy
+        env:
+          PARTICLE_DEVICE_NAME: ${{ secrets.PARTICLE_DEVICE_NAME }}
+        run: | 
+         echo deploying to $PARTICLE_DEVICE_NAME
+         particle flash $PARTICLE_DEVICE_NAME *.bin
